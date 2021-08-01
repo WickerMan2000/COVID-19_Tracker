@@ -5,8 +5,6 @@ import styles from './Announcement.module.css';
 const Announcement = React.memo(({ index, description, data }) => {
     const inputContext = useContext(InputContext);
 
-    console.log(data);
-
     return (
         <div className={[styles.Announcement, { 'grid-column': index + 2 / 5 }].join(' ')}>
             <h1>{inputContext.country}</h1>
