@@ -1,0 +1,6 @@
+.Country {
+  height: 20px;
+  display: grid;
+  grid-row: 6/7;
+  grid-column: 2/3;
+}

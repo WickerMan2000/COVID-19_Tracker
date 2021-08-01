@@ -1,0 +1,9 @@
+.Announcement {
+  border: 2px solid rgba(250, 23, 23, 0.3);
+  display: inline-table;
+  margin: 10px;
+  padding-left: 3rem;
+  border-radius: 16px;
+  height: 16px;
+  font-size: 18px;
+}
