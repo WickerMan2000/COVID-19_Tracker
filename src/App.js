@@ -19,21 +19,27 @@ const App = React.memo(() => {
   const appropriateDataRef = useRef([]);
   const inputContext = useContext(InputContext);
 
-  const collectAppropriateData = useCallback(async (cases, country, data) => {
-    const keys = await Object.keys(data[cases].find(ctry => ctry['Country/Region'] === country)).slice(4);
-    let values = await Object.values(data[cases].find(ctry => ctry['Country/Region'] === country)).slice(4);
-
-    if (data[cases].find(ctry => ctry['Country/Region'] === country)['Province/State']) {
-      const array = Array.from({ length: values.length }, () => 0);
-      const dataPerProvinceOrState = await data[cases].filter(ctry => ctry['Country/Region'] === country);
-      dataPerProvinceOrState.forEach(element => Object.values(element).slice(4).forEach((el, index) => array[index] += el));
-      values = array;
-    }
-
-    values = values.map((element, index, array) => index > 0 ? element - array[index - 1] : array[0]);
+  const calculateAppropriateData = (keys, values, cases, country) => {
+    values = values.map((element, index, array) => index > 0 ? element - array[index - 1] : array[0])
+      .map(element => element < 0 ? (element = 0) : element);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
     appropriateDataRef.current.length === 3 && setReady(true);
+  }
+
+  const collectAppropriateData = useCallback(async (cases, country, data) => {
+    const reversedData = await data[cases].reverse();
+    const keys = Object.keys(reversedData.find(ctry => ctry['Country/Region'] === country)).slice(4);
+    let values = Object.values(reversedData.find(ctry => ctry['Country/Region'] === country)).slice(4);
+
+    if (!reversedData.find(ctry => ctry['Country/Region'] === country)['Province/State']) {
+      calculateAppropriateData(keys, values, cases, country);
+    } else {
+      const array = Array.from({ length: values.length }, () => 0);
+      const dataPerProvinceOrState = await reversedData.filter(ctry => ctry['Country/Region'] === country);
+      dataPerProvinceOrState.forEach(element => Object.values(element).slice(4).forEach((el, index) => array[index] += el));
+      calculateAppropriateData(keys, array, cases, country);
+    }
   }, [])
 
   useEffect(() => {
@@ -47,7 +53,11 @@ const App = React.memo(() => {
     <div className={styles.Container}>
       {
         descriptions.map((description, idx) =>
-          <Announcement description={description} index={idx} data={appropriateDataRef.current[idx]} />)
+          <Announcement
+            index={idx}
+            covidState={cases[idx]}
+            description={description}
+            data={appropriateDataRef.current} />)
       }
       <Country />
     </div>
