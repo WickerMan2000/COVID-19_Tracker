@@ -22,6 +22,14 @@ const App = React.memo(() => {
   const collectAppropriateData = useCallback(async (cases, country, data) => {
     const keys = await Object.keys(data[cases].find(ctry => ctry['Country/Region'] === country)).slice(4);
     let values = await Object.values(data[cases].find(ctry => ctry['Country/Region'] === country)).slice(4);
+
+    if (data[cases].find(ctry => ctry['Country/Region'] === country)['Province/State']) {
+      const array = Array.from({ length: values.length }, () => 0);
+      const dataPerProvinceOrState = await data[cases].filter(ctry => ctry['Country/Region'] === country);
+      dataPerProvinceOrState.forEach(element => Object.values(element).slice(4).forEach((el, index) => array[index] += el));
+      values = array;
+    }
+
     values = values.map((element, index, array) => index > 0 ? element - array[index - 1] : array[0]);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
