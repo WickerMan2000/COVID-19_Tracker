@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Announcement from './components/Announcement';
 import Country from './components/Country';
-import styles from './App.module.css'
 import useHttp from './CustomHooks/useHttp';
 import InputContext from './store/InputContext';
+import Chart from './components/Chart';
+import styles from './App.module.css'
 
 const descriptions = [
   'Number of confirmed cases of COVID-19.',
@@ -20,8 +21,8 @@ const App = React.memo(() => {
   const inputContext = useContext(InputContext);
 
   const calculateAppropriateData = (keys, values, cases, country) => {
-    values = values.map((element, index, array) => index > 0 ? element - array[index - 1] : array[0])
-      .map(element => element < 0 ? (element = 0) : element);
+    values = values.map((element, index, array) =>
+      index > 0 ? (element - array[index - 1] > 0 ? element - array[index - 1] : 0) : array[0]);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
     appropriateDataRef.current.length === 3 && setReady(true);
@@ -60,6 +61,9 @@ const App = React.memo(() => {
             data={appropriateDataRef.current} />)
       }
       <Country />
+      <Chart
+        covidState={cases[0]}
+        data={appropriateDataRef.current} />
     </div>
   );
 })
