@@ -1,9 +1,10 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Announcement from './components/Announcement';
 import Country from './components/Country';
 import useHttp from './CustomHooks/useHttp';
 import InputContext from './store/InputContext';
 import Chart from './components/Chart';
+import Spinner from './UI/Spinner';
 import styles from './App.module.css'
 
 const descriptions = [
@@ -15,17 +16,17 @@ const descriptions = [
 const cases = ['confirmed', 'recovered', 'deaths'];
 
 const App = React.memo(() => {
-  const { error, isLoading, countrySelector } = useHttp();
-  const [_, setReady] = useState(false);
+  const { error, countrySelector } = useHttp();
+  const [loading, setLoading] = useState(false);
   const appropriateDataRef = useRef([]);
-  const inputContext = useContext(InputContext);
+  const { country } = useContext(InputContext);
 
   const calculateAppropriateData = (keys, values, cases, country) => {
     values = values.map((element, index, array) =>
       index > 0 ? (element - array[index - 1] > 0 ? element - array[index - 1] : 0) : array[0]);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
-    appropriateDataRef.current.length === 3 && setReady(true);
+    appropriateDataRef.current.length === 3 && setLoading(true);
   }
 
   const collectAppropriateData = useCallback(async (cases, country, data) => {
@@ -44,27 +45,42 @@ const App = React.memo(() => {
   }, [])
 
   useEffect(() => {
-    setReady(false);
+    setLoading(false);
     appropriateDataRef.current = [];
-    inputContext.country && cases.forEach(covidState => countrySelector({ url: `https://covid2019-api.herokuapp.com/timeseries/${covidState}` },
-      collectAppropriateData.bind(null, covidState, inputContext.country)));
-  }, [countrySelector, collectAppropriateData, inputContext.country])
+    country && cases.forEach(covidState =>
+      countrySelector({ url: `https://covid2019-api.herokuapp.com/timeseries/${covidState}` },
+        collectAppropriateData.bind(null, covidState, country)));
+  }, [countrySelector, collectAppropriateData, country])
+
+  useEffect(() => {
+    setLoading(true);
+  }, [])
 
   return (
-    <div className={styles.Container}>
-      {
-        descriptions.map((description, idx) =>
-          <Announcement
-            index={idx}
-            covidState={cases[idx]}
-            description={description}
-            data={appropriateDataRef.current} />)
-      }
-      <Country />
-      <Chart
-        covidState={cases}
-        data={appropriateDataRef.current} />
-    </div>
+    <Fragment>
+      {!loading && <Spinner style={{
+        'top': 500,
+        'left': 800,
+        'z-index': 1000,
+        'display': 'inline',
+        'position': 'fixed'
+      }} />}
+      <div className={styles.Container}>
+        {
+          descriptions.map((description, idx) =>
+            <Announcement
+              index={idx}
+              covidState={cases[idx]}
+              description={description}
+              data={appropriateDataRef.current} />)
+        }
+        <Country isEnabled={!loading} />
+        {!error ? <Chart
+          covidState={cases}
+          data={appropriateDataRef.current} />
+          : <p>{error}</p>}
+      </div>
+    </Fragment>
   );
 })
 

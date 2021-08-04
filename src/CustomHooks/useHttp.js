@@ -1,14 +1,13 @@
 import { useCallback, useState } from 'react';
 
-const catchError = (errorFunction, loadingFunction) => fn => (requestConfig, getAllData) =>
-    fn(requestConfig, getAllData).catch(err => errorFunction(err.message), loadingFunction(false));
+const catchError = errorFunction => fn => (requestConfig, getAllData) =>
+    fn(requestConfig, getAllData).catch(err => errorFunction(err.message));
 
 const useHttp = () => {
     const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const countrySelector = useCallback(catchError(setError, setIsLoading)(async (requestConfig, getAllData) => {
-        setIsLoading(true);
+    const countrySelector = useCallback(catchError(setError)(async (requestConfig, getAllData) => {
+        setError(null);
         const response = await fetch(requestConfig.url);
         if (!response.ok) {
             throw new Error("An error occured!");
@@ -17,7 +16,7 @@ const useHttp = () => {
         getAllData(data);
     }), []);
 
-    return { error, isLoading, countrySelector }
+    return { error, countrySelector }
 }
 
 export default useHttp;
