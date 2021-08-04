@@ -1,41 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import styles from './Chart.module.css';
 
 const Chart = React.memo(({ data, covidState }) => {
     const [chartData, setChartData] = useState({});
-    const depictedData = data.filter(object => object.case === "confirmed");
+
+    const colors = ['blue', 'green', 'red'];
+    const depData = cs => data.filter(object => object.case === cs);
+    const newCovidState = colors.map((color, index) => ({ cov: covidState[index], color: color }));
 
     useEffect(() => {
         setChartData({
-            labels: depictedData.map(({ data }) => data.map(({ key }) => key))[0],
-            datasets: [
-                {
-                    label: 'Per Day',
-                    data: depictedData.map(({ data }) => data.map(({ value }) => value))[0],
-                    backgroundColor: 'lightblue',
-                    borderwidth: 1,
-                    hoverBorderWidth: 20,
-                    hoverBackgroundColor: 'green',
-                    fill: true
-                }
-            ]
+            labels: depData(covidState[0]).map(({ data }) => data.map(({ key }) => key))[0],
+            datasets: newCovidState.map(({ cov, color }) => ({
+                data: depData(cov).map(({ data }) => data.map(({ value }) => value))[0],
+                backgroundColor: color,
+                hoverBackgroundColor: 'white',
+                hoverBorderWidth: 20,
+                borderwidth: 10,
+                label: cov,
+                fill: true
+            }))
         });
     }, [data])
 
     return (
         <div className={styles.Chart}>
             <div>
-                <Line data={chartData} options={{
+                <Bar data={chartData} options={{
                     responsive: true,
                     scales: {
                         y: {
                             beginAtZero: true
                         },
                     },
+                    layout: {
+                        padding: {
+                            left: 150,
+                            right: 150,
+                            top: 10,
+                            bottom: 300
+                        }
+                    },
                     plugins: {
                         tooltip: {
-                            events: ['click']
+                            events: ['mousemove']
                         },
                         title: {
                             display: true,

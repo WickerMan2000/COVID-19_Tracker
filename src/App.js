@@ -62,7 +62,7 @@ const App = React.memo(() => {
       }
       <Country />
       <Chart
-        covidState={cases[0]}
+        covidState={cases}
         data={appropriateDataRef.current} />
     </div>
   );

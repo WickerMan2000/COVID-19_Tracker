@@ -6,8 +6,6 @@ const Announcement = React.memo(({ index, description, covidState, data = [] }) 
     const inputContext = useContext(InputContext);
     const announcementData = data.filter(object => object.case === covidState);
 
-    // console.log(announcementData)
-
     return (
         <div className={[styles.Announcement, { 'grid-column': index + 2 / 5 }].join(' ')}>
             <h1>{inputContext.country}</h1>
