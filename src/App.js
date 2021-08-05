@@ -17,7 +17,7 @@ const cases = ['confirmed', 'recovered', 'deaths'];
 
 const App = React.memo(() => {
   const { error, countrySelector } = useHttp();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const appropriateDataRef = useRef([]);
   const { country } = useContext(InputContext);
 
@@ -26,7 +26,7 @@ const App = React.memo(() => {
       index > 0 ? (element - array[index - 1] > 0 ? element - array[index - 1] : 0) : array[0]);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
-    appropriateDataRef.current.length === 3 && setLoading(true);
+    appropriateDataRef.current.length === 3 && setLoading(false);
   }
 
   const collectAppropriateData = useCallback(async (cases, country, data) => {
@@ -45,7 +45,7 @@ const App = React.memo(() => {
   }, [])
 
   useEffect(() => {
-    setLoading(false);
+    setLoading(true);
     appropriateDataRef.current = [];
     country && cases.forEach(covidState =>
       countrySelector({ url: `https://covid2019-api.herokuapp.com/timeseries/${covidState}` },
@@ -53,12 +53,12 @@ const App = React.memo(() => {
   }, [countrySelector, collectAppropriateData, country])
 
   useEffect(() => {
-    setLoading(true);
+    setLoading(false);
   }, [])
 
   return (
     <Fragment>
-      {!loading && <Spinner style={{
+      {loading && <Spinner style={{
         'top': 500,
         'left': 800,
         'z-index': 1000,
@@ -74,7 +74,7 @@ const App = React.memo(() => {
               description={description}
               data={appropriateDataRef.current} />)
         }
-        <Country isEnabled={!loading} />
+        <Country isEnabled={loading} />
         {!error ? <Chart
           covidState={cases}
           data={appropriateDataRef.current} />
