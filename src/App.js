@@ -9,27 +9,38 @@ import styles from './App.module.css'
 
 const descriptions = [
   'Number of confirmed cases of COVID-19.',
-  'Number of recoveries from COVID-19',
-  'Number of deaths caused by COVID-19'
+  'Number of deaths from COVID-19',
+  'Number of recoveries caused by COVID-19'
 ];
 
 const cases = ['confirmed', 'recovered', 'deaths'];
+const globalCases = ['cases', 'deaths', 'recovered'];
 
 const App = React.memo(() => {
   const { error, countrySelector } = useHttp();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const appropriateDataRef = useRef([]);
+  const casesRef = useRef([]);
   const { country } = useContext(InputContext);
 
   const calculateAppropriateData = (keys, values, cases, country) => {
+    casesRef.current = casesRef.current.concat(cases);
     values = values.map((element, index, array) =>
       index > 0 ? (element - array[index - 1] > 0 ? element - array[index - 1] : 0) : array[0]);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
-    appropriateDataRef.current.length === 3 && setLoading(false);
+    appropriateDataRef.current.length === 3 && casesRef.current.sort();
+    appropriateDataRef.current.length === 3 && setIsLoading(false);
   }
 
   const collectAppropriateData = useCallback(async (cases, country, data) => {
+    if (country === 'Global') {
+      const keys = Object.keys(data[cases]);
+      const values = Object.values(data[cases]);
+      calculateAppropriateData(keys, values, cases, country);
+      return;
+    }
+
     const reversedData = await data[cases].reverse();
     const keys = Object.keys(reversedData.find(ctry => ctry['Country/Region'] === country)).slice(4);
     let values = Object.values(reversedData.find(ctry => ctry['Country/Region'] === country)).slice(4);
@@ -37,7 +48,7 @@ const App = React.memo(() => {
     if (!reversedData.find(ctry => ctry['Country/Region'] === country)['Province/State']) {
       calculateAppropriateData(keys, values, cases, country);
     } else {
-      const array = Array.from({ length: values.length }, () => 0);
+      const array = Array.from({ length: keys.length }, () => 0);
       const dataPerProvinceOrState = await reversedData.filter(ctry => ctry['Country/Region'] === country);
       dataPerProvinceOrState.forEach(element => Object.values(element).slice(4).forEach((el, index) => array[index] += el));
       calculateAppropriateData(keys, array, cases, country);
@@ -45,20 +56,25 @@ const App = React.memo(() => {
   }, [])
 
   useEffect(() => {
-    setLoading(true);
-    appropriateDataRef.current = [];
-    country && cases.forEach(covidState =>
-      countrySelector({ url: `https://covid2019-api.herokuapp.com/timeseries/${covidState}` },
-        collectAppropriateData.bind(null, covidState, country)));
+    if (country === 'Global') {
+      globalCases.forEach(covidState =>
+        countrySelector({ url: "https://disease.sh/v3/covid-19/historical/all?lastdays=all" },
+          collectAppropriateData.bind(null, covidState, country)));
+    } else {
+      cases.forEach(covidState =>
+        countrySelector({ url: `https://covid2019-api.herokuapp.com/timeseries/${covidState}` },
+          collectAppropriateData.bind(null, covidState, country)));
+    }
+    return () => {
+      setIsLoading(true);
+      casesRef.current = [];
+      appropriateDataRef.current = [];
+    }
   }, [countrySelector, collectAppropriateData, country])
-
-  useEffect(() => {
-    setLoading(false);
-  }, [])
 
   return (
     <Fragment>
-      {loading && <Spinner style={{
+      {isLoading && <Spinner style={{
         'top': 500,
         'left': 800,
         'z-index': 1000,
@@ -70,13 +86,13 @@ const App = React.memo(() => {
           descriptions.map((description, idx) =>
             <Announcement
               index={idx}
-              covidState={cases[idx]}
+              covidState={casesRef.current[idx]}
               description={description}
               data={appropriateDataRef.current} />)
         }
-        <Country isEnabled={loading} />
+        <Country isEnabled={isLoading} />
         {!error ? <Chart
-          covidState={cases}
+          covidState={casesRef.current}
           data={appropriateDataRef.current} />
           : <p>{error}</p>}
       </div>

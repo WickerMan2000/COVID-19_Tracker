@@ -5,7 +5,7 @@ import Spinner from '../UI/Spinner';
 import styles from './Country.module.css';
 
 const Country = ({ isEnabled }) => {
-    const [countries, setCountries] = useState([{ country: 'All' }]);
+    const [countries, setCountries] = useState([{ country: 'Global' }]);
     const { error, countrySelector } = useHttp();
     const { dispatch } = useContext(InputContext);
 
@@ -32,7 +32,7 @@ const Country = ({ isEnabled }) => {
     return (
         <Fragment>
             {countries.length <= 1 && <Spinner style={{
-                'top': 140,
+                'top': 230,
                 'left': 270,
                 'z-index': 1000,
                 'display': 'inline',

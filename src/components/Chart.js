@@ -5,7 +5,7 @@ import styles from './Chart.module.css';
 const Chart = React.memo(({ data, covidState }) => {
     const [chartData, setChartData] = useState({});
 
-    const colors = ['blue', 'green', 'red'];
+    const colors = ['blue', 'red', 'green'];
     const depData = cs => data.filter(object => object.case === cs);
     const newCovidState = colors.map((color, index) => ({ cov: covidState[index], color: color }));
 

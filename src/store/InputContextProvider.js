@@ -1,7 +1,7 @@
 import { useReducer } from "react"
 import InputContext from '../store/InputContext';
 
-const defaultState = { country: '' };
+const defaultState = { country: 'Global' };
 
 const inputReducer = (_, action) => {
     if (action.type === "selectCountry") {
