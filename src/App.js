@@ -55,22 +55,23 @@ const App = React.memo(() => {
     }
   }, [])
 
+  const appropriateCountryDataCalculation = useCallback((cases, url, extendUrl = false) => {
+    cases.forEach(covidState => countrySelector({ url: extendUrl ? [url, covidState].join("") : url },
+      collectAppropriateData.bind(null, covidState, country)));
+  }, [country, collectAppropriateData, countrySelector])
+
   useEffect(() => {
     if (country === 'Global') {
-      globalCases.forEach(covidState =>
-        countrySelector({ url: "https://disease.sh/v3/covid-19/historical/all?lastdays=all" },
-          collectAppropriateData.bind(null, covidState, country)));
+      appropriateCountryDataCalculation(globalCases, "https://disease.sh/v3/covid-19/historical/all?lastdays=all");
     } else {
-      cases.forEach(covidState =>
-        countrySelector({ url: `https://covid2019-api.herokuapp.com/timeseries/${covidState}` },
-          collectAppropriateData.bind(null, covidState, country)));
+      appropriateCountryDataCalculation(cases, "https://covid2019-api.herokuapp.com/timeseries/", true);
     }
     return () => {
       setIsLoading(true);
       casesRef.current = [];
       appropriateDataRef.current = [];
     }
-  }, [countrySelector, collectAppropriateData, country])
+  }, [appropriateCountryDataCalculation, country])
 
   return (
     <Fragment>
