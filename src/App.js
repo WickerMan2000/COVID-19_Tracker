@@ -91,7 +91,7 @@ const App = React.memo(() => {
               description={description}
               data={appropriateDataRef.current} />)
         }
-        <Country isEnabled={isLoading} />
+        <Country isNotEnabled={isLoading} />
         {!error ? <Chart
           covidState={casesRef.current}
           data={appropriateDataRef.current} />

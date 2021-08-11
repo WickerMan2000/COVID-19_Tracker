@@ -3,17 +3,17 @@ import InputContext from '../store/InputContext';
 
 const defaultState = { country: 'Global' };
 
-const inputReducer = (_, action) => {
-    if (action.type === "selectCountry") {
-        return {
-            country: action.country
-        }
-    }
-    return defaultState;
-}
+const { Provider } = InputContext;
 
 const InputContextProvider = ({ children }) => {
-    const [inputState, dispatchInput] = useReducer(inputReducer, defaultState);
+    const [inputState, dispatchInput] = useReducer((_, action) => {
+        if (action.type === "SELECT_COUNTRY") {
+            return {
+                country: action.country
+            }
+        }
+        return defaultState;
+    }, defaultState);
 
     const inputContext = {
         country: inputState.country,
@@ -21,9 +21,9 @@ const InputContextProvider = ({ children }) => {
     }
 
     return (
-        <InputContext.Provider value={inputContext}>
+        <Provider value={inputContext}>
             {children}
-        </InputContext.Provider>
+        </Provider>
     );
 }
 

@@ -4,7 +4,7 @@ import useHttp from '../CustomHooks/useHttp';
 import Spinner from '../UI/Spinner';
 import styles from './Country.module.css';
 
-const Country = ({ isEnabled }) => {
+const Country = ({ isNotEnabled }) => {
     const [countries, setCountries] = useState([{ country: 'Global' }]);
     const { error, countrySelector } = useHttp();
     const { dispatch } = useContext(InputContext);
@@ -22,7 +22,7 @@ const Country = ({ isEnabled }) => {
 
     const selectHandler = event => {
         const { value } = event.target;
-        dispatch({ type: 'selectCountry', country: value });
+        dispatch({ type: 'SELECT_COUNTRY', country: value });
     }
 
     useEffect(() => {
@@ -40,7 +40,7 @@ const Country = ({ isEnabled }) => {
             }} />}
             <div className={styles.Country}>
                 {error && <p style={{ 'color': 'red' }}>{error}</p>}
-                <select name="country" onChange={selectHandler} disabled={countries.length <= 1 || isEnabled}>
+                <select name="country" onChange={selectHandler} disabled={countries.length <= 1 || isNotEnabled}>
                     {
                         countries.map(({ country }, index) =>
                             <option key={index} value={country}>{country}</option>
