@@ -19,9 +19,9 @@ const globalCases = ['cases', 'deaths', 'recovered'];
 const App = React.memo(() => {
   const { error, countrySelector } = useHttp();
   const [isLoading, setIsLoading] = useState(true);
+  const { country } = useContext(InputContext);
   const appropriateDataRef = useRef([]);
   const casesRef = useRef([]);
-  const { country } = useContext(InputContext);
 
   const calculateAppropriateData = (keys, values, cases, country) => {
     casesRef.current = casesRef.current.concat(cases);
@@ -76,11 +76,11 @@ const App = React.memo(() => {
   return (
     <Fragment>
       {isLoading && <Spinner style={{
-        'top': 500,
-        'left': 800,
-        'z-index': 1000,
-        'display': 'inline',
-        'position': 'fixed'
+        top: 500,
+        left: 800,
+        zIndex: 1000,
+        display: 'inline',
+        position: 'fixed'
       }} />}
       <div className={styles.Container}>
         {

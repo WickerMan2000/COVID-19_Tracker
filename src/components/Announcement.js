@@ -7,7 +7,7 @@ const Announcement = React.memo(({ index, description, covidState, data = [] }) 
     const announcementData = data.filter(object => object.case === covidState);
 
     return (
-        <div className={[styles.Announcement, { 'grid-column': index + 2 / 5 }].join(' ')}>
+        <div className={[styles.Announcement, { gridColumn: `${index} + 2 / 5` }].join(' ')}>
             <h1>{inputContext.country}</h1>
             <h2>{announcementData.map(object => object.data[object.data.length - 1].key)}</h2>
             <h3>{announcementData.map(object => object.data[object.data.length - 1].value)} cases</h3>

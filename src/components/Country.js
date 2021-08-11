@@ -32,11 +32,11 @@ const Country = ({ isEnabled }) => {
     return (
         <Fragment>
             {countries.length <= 1 && <Spinner style={{
-                'top': 230,
-                'left': 270,
-                'z-index': 1000,
-                'display': 'inline',
-                'position': 'fixed'
+                top: 230,
+                left: 270,
+                zIndex: 1000,
+                display: 'inline',
+                position: 'fixed'
             }} />}
             <div className={styles.Country}>
                 {error && <p style={{ 'color': 'red' }}>{error}</p>}
