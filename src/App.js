@@ -33,7 +33,7 @@ const App = React.memo(() => {
     appropriateDataRef.current.length === 3 && setIsLoading(false);
   }
 
-  const collectAppropriateData = useCallback(async (cases, country, data) => {
+  const collectAppropriateData = useCallback((cases, country, data) => {
     if (country === 'Global') {
       const keys = Object.keys(data[cases]);
       const values = Object.values(data[cases]);
@@ -41,7 +41,7 @@ const App = React.memo(() => {
       return;
     }
 
-    const reversedData = await data[cases].reverse();
+    const reversedData = data[cases].reverse();
     const keys = Object.keys(reversedData.find(ctry => ctry['Country/Region'] === country)).slice(4);
     let values = Object.values(reversedData.find(ctry => ctry['Country/Region'] === country)).slice(4);
 
@@ -49,7 +49,7 @@ const App = React.memo(() => {
       calculateAppropriateData(keys, values, cases, country);
     } else {
       const array = Array.from({ length: keys.length }, () => 0);
-      const dataPerProvinceOrState = await reversedData.filter(ctry => ctry['Country/Region'] === country);
+      const dataPerProvinceOrState = reversedData.filter(ctry => ctry['Country/Region'] === country);
       dataPerProvinceOrState.forEach(element => Object.values(element).slice(4).forEach((el, index) => array[index] += el));
       calculateAppropriateData(keys, array, cases, country);
     }

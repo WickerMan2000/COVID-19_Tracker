@@ -9,9 +9,9 @@ const Country = ({ isNotEnabled }) => {
     const { error, countrySelector } = useHttp();
     const { dispatch } = useContext(InputContext);
 
-    const getListOfAllCountries = useCallback(async data => {
+    const getListOfAllCountries = useCallback(data => {
         const filteredObject = {};
-        const result = await data.confirmed.map((_, index) => {
+        const result = data.confirmed.map((_, index) => {
             return {
                 country: data.confirmed[index]['Country/Region']
             }

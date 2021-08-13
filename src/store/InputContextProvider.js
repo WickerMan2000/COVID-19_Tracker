@@ -6,13 +6,13 @@ const defaultState = { country: 'Global' };
 const { Provider } = InputContext;
 
 const InputContextProvider = ({ children }) => {
-    const [inputState, dispatchInput] = useReducer((_, action) => {
+    const [inputState, dispatchInput] = useReducer((state, action) => {
         if (action.type === "SELECT_COUNTRY") {
             return {
                 country: action.country
             }
         }
-        return defaultState;
+        return state;
     }, defaultState);
 
     const inputContext = {
