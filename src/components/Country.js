@@ -31,13 +31,14 @@ const Country = ({ isNotEnabled }) => {
 
     return (
         <Fragment>
-            {countries.length <= 1 && <Spinner style={{
-                top: 230,
-                left: 270,
-                zIndex: 1000,
-                display: 'inline',
-                position: 'fixed'
-            }} />}
+            {countries.length <= 1 &&
+                <Spinner style={{
+                    top: 250,
+                    left: 600,
+                    zIndex: 1000,
+                    display: 'inline',
+                    position: 'fixed'
+                }} />}
             <div className={styles.Country}>
                 {error && <p style={{ 'color': 'red' }}>{error}</p>}
                 <select name="country" onChange={selectHandler} disabled={countries.length <= 1 || isNotEnabled}>

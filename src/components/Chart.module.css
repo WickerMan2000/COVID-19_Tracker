@@ -1,7 +1,8 @@
 .Chart {
+  display: grid;
   position: fixed;
-  margin-top: 400px;
-  margin-left: 50px;
+  margin-top: 70px;
+  margin-left: 120px;
   height: 400px;
   width: 85%;
 }

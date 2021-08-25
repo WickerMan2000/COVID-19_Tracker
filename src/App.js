@@ -5,12 +5,11 @@ import useHttp from './CustomHooks/useHttp';
 import InputContext from './store/InputContext';
 import Chart from './components/Chart';
 import Spinner from './UI/Spinner';
-import styles from './App.module.css'
 
 const descriptions = [
-  'Number of confirmed cases of COVID-19.',
-  'Number of deaths from COVID-19',
-  'Number of recoveries caused by COVID-19'
+  'Confirmed Cases',
+  'Deaths',
+  'Recoveries'
 ];
 
 const cases = ['confirmed', 'recovered', 'deaths'];
@@ -75,28 +74,29 @@ const App = React.memo(() => {
 
   return (
     <Fragment>
-      {isLoading && <Spinner style={{
-        top: 500,
-        left: 800,
-        zIndex: 1000,
-        display: 'inline',
-        position: 'fixed'
-      }} />}
-      <div className={styles.Container}>
+      {isLoading &&
+        <Spinner style={{
+          top: 500,
+          left: 800,
+          zIndex: 1000,
+          display: 'inline',
+          position: 'fixed'
+        }} />}
+      <div style={{ marginLeft: '320px' }}>
         {
           descriptions.map((description, idx) =>
             <Announcement
-              index={idx}
               covidState={casesRef.current[idx]}
               description={description}
               data={appropriateDataRef.current} />)
         }
-        <Country isNotEnabled={isLoading} />
-        {!error ? <Chart
+      </div>
+      <Country isNotEnabled={isLoading} />
+      {!error ?
+        <Chart
           covidState={casesRef.current}
           data={appropriateDataRef.current} />
-          : <p>{error}</p>}
-      </div>
+        : <p>{error}</p>}
     </Fragment>
   );
 })

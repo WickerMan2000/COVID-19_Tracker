@@ -1,6 +1,28 @@
 .Country {
-  height: 20px;
-  display: grid;
-  grid-row: 6/7;
-  grid-column: 2/3;
+  position: absolute;
+  margin-top: 30px;
+  margin-left: 835px;
+  transform: translate(-50%, -50%);
+}
+
+.Country select {
+  background-color: #0771c7;
+  color: white;
+  padding: 12px;
+  width: 380px;
+  border: none;
+  font-size: 15px;
+  country-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  -webkit-appearance: button;
+  appearance: button;
+  outline: none;
+}
+
+.Country:hover::before {
+  color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.Country select option {
+  padding: 30px;
 }

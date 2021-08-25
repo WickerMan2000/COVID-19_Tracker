@@ -9,4 +9,12 @@ html {
 body {
   margin: 0;
   background-color: antiquewhite;
+  font-family: "Open Sans", Arial, sans-serif;
+  color: rgb(60, 95, 83);
+  background-image: radial-gradient(
+    circle,
+    #069bd6 28%,
+    #0d9ade 72%,
+    #011844 100%
+  );
 }
