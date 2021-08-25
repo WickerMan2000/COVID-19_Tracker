@@ -1,5 +1,6 @@
 .Announcement {
   background-color: rgba(110, 109, 109, 0.2);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
   display: inline-table;
   margin: 20px;
   border-radius: 16px;
