@@ -48,7 +48,7 @@ const Chart = React.memo(({ data, caseOfInterest }) => {
                         },
                         title: {
                             display: true,
-                            text: 'Custom Chart Title'
+                            text: 'Covid-19 cases'
                         }
                     }
                 }} />

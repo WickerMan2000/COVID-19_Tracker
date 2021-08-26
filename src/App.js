@@ -105,7 +105,7 @@ const App = React.memo(() => {
       {isLoading &&
         <Spinner style={{
           top: 500,
-          left: 800,
+          left: 830,
           zIndex: 1000,
           display: 'inline',
           position: 'fixed'
