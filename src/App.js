@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 import Announcement from './components/Announcement';
 import Country from './components/Country';
 import useHttp from './CustomHooks/useHttp';
@@ -6,21 +6,41 @@ import InputContext from './store/InputContext';
 import Chart from './components/Chart';
 import Spinner from './UI/Spinner';
 
-const descriptions = [
-  'Confirmed Cases',
-  'Deaths',
-  'Recoveries'
-];
-
+const descriptions = ['Confirmed Cases', 'Deaths', 'Recoveries'];
 const cases = ['confirmed', 'recovered', 'deaths'];
 const globalCases = ['cases', 'deaths', 'recovered'];
 
 const App = React.memo(() => {
   const { error, countrySelector } = useHttp();
-  const [isLoading, setIsLoading] = useState(true);
   const { country } = useContext(InputContext);
   const appropriateDataRef = useRef([]);
   const casesRef = useRef([]);
+
+  const [{ isLoading, casesData, countryData }, dispatch] = useReducer((state, action) => {
+    switch (action.type) {
+      case 'LOADING': {
+        return {
+          ...state,
+          isLoading: action.loading,
+        }
+      }
+      case 'PERSISTING_PREVIOUS_DATA': {
+        return {
+          ...state,
+          isLoading: action.loading,
+          casesData: action.casesData,
+          countryData: action.countryData
+        }
+      }
+      default: {
+        return state;
+      }
+    }
+  }, {
+    isLoading: false,
+    casesData: [],
+    countryData: []
+  })
 
   const calculateAppropriateData = (keys, values, cases, country) => {
     casesRef.current = casesRef.current.concat(cases);
@@ -28,8 +48,11 @@ const App = React.memo(() => {
       index > 0 ? (element - array[index - 1] > 0 ? element - array[index - 1] : 0) : array[0]);
     const newArray = new Array(keys.length).fill().map((_, index) => ({ key: keys[index], value: values[index] }));
     appropriateDataRef.current = appropriateDataRef.current.concat({ country: country, case: cases, data: newArray });
-    appropriateDataRef.current.length === 3 && casesRef.current.sort();
-    appropriateDataRef.current.length === 3 && setIsLoading(false);
+    appropriateDataRef.current.length === 3 &&
+      casesRef.current.sort() && dispatch({
+        type: 'LOADING',
+        loading: false
+      });
   }
 
   const collectAppropriateData = useCallback((cases, country, data) => {
@@ -55,8 +78,8 @@ const App = React.memo(() => {
   }, [])
 
   const appropriateCountryDataCalculation = useCallback((cases, url, extendUrl = false) => {
-    cases.forEach(covidState => countrySelector({ url: extendUrl ? [url, covidState].join("") : url },
-      collectAppropriateData.bind(null, covidState, country)));
+    cases.forEach(caseOfInterest => countrySelector({ url: extendUrl ? [url, caseOfInterest].join("") : url },
+      collectAppropriateData.bind(null, caseOfInterest, country)));
   }, [country, collectAppropriateData, countrySelector])
 
   useEffect(() => {
@@ -66,7 +89,12 @@ const App = React.memo(() => {
       appropriateCountryDataCalculation(cases, "https://covid2019-api.herokuapp.com/timeseries/", true);
     }
     return () => {
-      setIsLoading(true);
+      dispatch({
+        type: 'PERSISTING_PREVIOUS_DATA',
+        loading: true,
+        casesData: casesRef.current,
+        countryData: appropriateDataRef.current
+      });
       casesRef.current = [];
       appropriateDataRef.current = [];
     }
@@ -86,16 +114,18 @@ const App = React.memo(() => {
         {
           descriptions.map((description, idx) =>
             <Announcement
-              covidState={casesRef.current[idx]}
+              loading={isLoading}
               description={description}
-              data={appropriateDataRef.current} />)
+              oldData={countryData[0] && countryData[0].country}
+              caseOfInterest={isLoading ? casesData[idx] : casesRef.current[idx]}
+              data={isLoading ? countryData : appropriateDataRef.current} />)
         }
       </div>
       <Country isNotEnabled={isLoading} />
       {!error ?
         <Chart
-          covidState={casesRef.current}
-          data={appropriateDataRef.current} />
+          caseOfInterest={isLoading ? casesData : casesRef.current}
+          data={isLoading ? countryData : appropriateDataRef.current} />
         : <p>{error}</p>}
     </Fragment>
   );

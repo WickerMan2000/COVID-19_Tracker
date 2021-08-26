@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import styles from './Chart.module.css';
 
-const Chart = React.memo(({ data, covidState }) => {
+const Chart = React.memo(({ data, caseOfInterest }) => {
     const [chartData, setChartData] = useState({});
 
     const colors = ['blue', 'red', 'green'];
     const depData = cs => data.filter(object => object.case === cs);
-    const newCovidState = colors.map((color, index) => ({ cov: covidState[index], color: color }));
+    const newCaseOfInterest = colors.map((color, index) => ({ cov: caseOfInterest[index], color: color }));
 
     useEffect(() => {
         setChartData({
-            labels: depData(covidState[0]).map(({ data }) => data.map(({ key }) => key))[0],
-            datasets: newCovidState.map(({ cov, color }) => ({
+            labels: depData(caseOfInterest[0]).map(({ data }) => data.map(({ key }) => key))[0],
+            datasets: newCaseOfInterest.map(({ cov, color }) => ({
                 data: depData(cov).map(({ data }) => data.map(({ value }) => value))[0],
                 backgroundColor: color,
                 hoverBackgroundColor: 'white',
